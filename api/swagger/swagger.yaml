@@ -1,0 +1,112 @@
+swagger: "2.0"
+info:
+  version: "0.0.1"
+  title: Study Buddy
+# during dev, should point to your local machine
+host: localhost:5000
+# basePath prefixes all resource paths 
+basePath: /api
+# 
+schemes:
+  # tip: remove http to make production-grade
+  - http
+  - https
+securityDefinitions:
+  Bearer:
+    type: apiKey
+    name: Authorization
+    in: header
+    description: |
+
+         The following syntax must be used in the 'Authorization' header :
+  
+         Bearer 'token'
+
+# format of bodies a client can send (Content-Type)
+consumes:
+  - application/json
+# format of the responses to the client (Accepts)
+produces:
+  - application/json
+paths:
+  /signup:
+    # binds a127 app logic to a route
+    x-swagger-router-controller: form
+    post:
+      operationId: signUpPost
+      description: "Enter your credentials"
+      parameters:
+        - name: credentials
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/Authentication"
+      responses:
+        "200":
+          description: "Success"
+          schema:
+            $ref: "#/definitions/Resource"
+  /login:
+    x-swagger-router-controller: form
+    post:
+      operationId: loginPost
+      description: "Login with your credentials"
+      parameters:
+        - name: authentication
+          in: body
+          required: true
+          schema:
+            $ref: "#/definitions/Authentication"
+      responses:
+        "200":
+          description: "Success"
+          schema:
+            $ref: "#/definitions/Token"
+        "403":
+          description: "Access Denied"
+          schema:
+            $ref: "#/definitions/Error"
+  /protected:
+    x-swagger-router-controller: form
+    get:
+      operationId: protectedGet
+      description: "Protected endpoint"
+      security:
+        - Bearer: []
+      responses:
+        "200":
+          description: "Success"
+          schema:
+            $ref: "#/definitions/Resource"
+        "403":
+          description: "Access Denied"
+          schema:
+            $ref: "#/definitions/Error"
+  /swagger:
+    x-swagger-pipe: swagger_raw
+# complex objects have schema definitions
+definitions:
+  Authentication:
+    type: object
+    properties:
+      username:
+        type: string
+        example: "username"
+      password:
+        type: string
+        example: "password"
+  Resource:
+    type: object
+    properties:
+      resource:
+        type: string
+  Token:
+    type: object
+    properties:
+      token:
+        type: string
+  Error:
+    type: object
+    properties:
+      message:
+        type: string
